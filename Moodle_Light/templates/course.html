@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{{ course.title }} — Курс</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header>
+  <h1><a href="{{ url_for('index') }}" style="color:white;text-decoration:none;">Moodle Light</a></h1>
+  <div>
+    {% if user %}
+      <a href="{{ url_for('profile') }}">👤 {{ user.username }} ({{ user.role }})</a>
+      <form method="post" action="{{ url_for('logout') }}" style="display:inline">
+        <button type="submit" class="btn btn-danger" style="margin-left:0.5rem;">Выйти</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-accent">Войти</a>
+    {% endif %}
+  </div>
+</header>
+
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h1>{{ course.title }}</h1>
+      <div>
+        <a href="{{ url_for('index') }}">← На главную</a>
+        {% if user and user.role == 'teacher' %}
+          <a href="{{ url_for('course_edit', cid=course.id) }}">✏ Редактировать</a>
+          <a href="{{ url_for('task_add_form', cid=course.id) }}"> Задание</a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if course.description %}
+      <p style="white-space:pre-wrap">{{ course.description }}</p>
+    {% else %}
+      <p><em>Описание пока не добавлено</em></p>
+    {% endif %}
+
+    <hr>
+
+    <h2> Задания по курсу</h2>
+    <ul>
+      {% set course_tasks = [] %}
+      {% for t in load_json('tasks.json', {'tasks': []})['tasks'] if t.course_id == course.id %}
+        {% set _ = course_tasks.append(t) %}
+      {% endfor %}
+
+      {% if course_tasks %}
+        {% for t in course_tasks %}
+          <li>
+            <strong>{{ t.title }}</strong>
+            {% if t.deadline %} — до {{ t.deadline }}{% endif %}
+            <a href="{{ url_for('task_view', cid=course.id, tid=t.id) }}">Открыть</a>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li>Заданий пока нет</li>
+      {% endif %}
+    </ul>
+
+    <p><a href="{{ url_for('task_list', cid=course.id) }}"> Перейти ко всем заданиям</a></p>
+
+    <hr>
+
+    <h2> Обсуждение курса</h2>
+    {% if user %}
+      <form method="post" action="{{ url_for('course_comment_create', cid=course.id) }}" style="margin-bottom:1rem">
+        <input name="text" placeholder="Ваш комментарий" required style="width:70%">
+        <button type="submit">Отправить</button>
+      </form>
+    {% else %}
+      <p><a href="{{ url_for('login', next=request.path) }}">Войдите</a>, чтобы оставить комментарий.</p>
+    {% endif %}
+
+    <ul>
+      {% for cm in comments %}
+        <li>
+          {{ cm.text }}
+          {% if user and user.role == 'teacher' %}
+            <form method="post" action="{{ url_for('course_comment_delete', cid=course.id, cmid=cm.id) }}" style="display:inline">
+              <button type="submit" title="Удалить">✕</button>
+            </form>
+          {% endif %}
+        </li>
+      {% else %}
+        <li>Комментариев пока нет</li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</body>
+</html>

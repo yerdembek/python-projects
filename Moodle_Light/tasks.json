@@ -1,0 +1,11 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "course_id": 1,
+      "title": "ex1",
+      "description": "you need to finish some task",
+      "deadline": "30.10.2025"
+    }
+  ]
+}

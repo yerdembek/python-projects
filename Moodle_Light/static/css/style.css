@@ -1,0 +1,185 @@
+/* === Основные цвета === */
+:root {
+  --bg: #f5f6fa;
+  --card: #fff;
+  --primary: #2d89ef;
+  --accent: #44c767;
+  --danger: #e74c3c;
+  --text: #333;
+  --border: #ddd;
+}
+
+/* === Общий стиль === */
+body {
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+}
+
+/* === Контейнер === */
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* === Шапка === */
+header {
+  background: var(--primary);
+  color: #fff;
+  padding: 0.8rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+header a {
+  color: #fff;
+  text-decoration: none;
+  margin-left: 1rem;
+}
+
+header a:hover {
+  text-decoration: underline;
+}
+
+/* === Кнопки === */
+button, .btn {
+  display: inline-block;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+}
+
+button:hover, .btn:hover {
+  background-color: #1e6edc;
+}
+
+.btn-accent { background: var(--accent); }
+.btn-accent:hover { background: #2fa95f; }
+
+.btn-danger { background: var(--danger); }
+.btn-danger:hover { background: #c0392b; }
+
+/* === Формы === */
+form {
+  margin: 1rem 0;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+input[type="file"] {
+  border: none;
+}
+
+/* === Списки и карточки === */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: var(--bg);
+  margin-bottom: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+li strong {
+  font-weight: 600;
+}
+
+li a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+li a:hover {
+  text-decoration: underline;
+}
+
+/* === Сообщения === */
+.flash {
+  background: #e9f5ff;
+  border-left: 4px solid var(--primary);
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+}
+
+/* === Мелочи === */
+h1, h2, h3 {
+  color: #222;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+/* === Адаптив === */
+@media (max-width: 600px) {
+  .container {
+    margin: 1rem;
+    padding: 1.2rem;
+  }
+
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  header a {
+    margin: 0.3rem 0 0;
+  }
+
+  li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: .2rem .5rem;
+  border-radius: 999px;
+  font-size: .85rem;
+  background: #eee;
+}
+.badge-teacher { background: #ffe9cc; color: #a15c00; }
+.badge-student { background: #e7f7ec; color: #1c7c3b; }
+
+.muted { color: #666; font-size: .9rem; }
+
+/* простая таблица на div-ах */
+.table { width: 100%; }
+.tr { display: grid; grid-template-columns: 2fr 2fr 2fr 1fr 2fr; gap: .5rem; padding: .5rem 0; border-bottom: 1px solid var(--border); }
+.tr.th { font-weight: 600; border-bottom: 2px solid var(--border); }

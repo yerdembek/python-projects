@@ -1,0 +1,9 @@
+{
+  "courses": [
+    {
+      "id": 1,
+      "title": "math",
+      "description": "math course for 1st year students"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Moodle Light</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header>
+  <h1><a href="{{ url_for('index') }}" style="color:white;text-decoration:none;">Moodle Light</a></h1>
+  <div>
+    {% if user %}
+      <a href="{{ url_for('profile') }}">👤 {{ user.username }} ({{ user.role }})</a>
+      <form method="post" action="{{ url_for('logout') }}" style="display:inline">
+        <button type="submit" class="btn btn-danger" style="margin-left:0.5rem;">Выйти</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-accent">Войти</a>
+    {% endif %}
+  </div>
+</header>
+  <div class="container">
+  {% if user and user.role == 'teacher' %}
+    <form method="post" action="{{ url_for('add_course_form') }}" style="margin-bottom:1rem">
+      <input name="title" placeholder="Название курса" required>
+      <button type="submit" class="btn btn-accent">+ Добавить курс</button>
+    </form>
+  {% endif %}
+
+  <h2>Курсы</h2>
+  <ul>
+    {% for c in courses %}
+      <li>
+        <div>
+          <strong>{{ c.title }}</strong>
+        </div>
+        <div>
+          <a href="{{ url_for('course_view', cid=c.id) }}" class="btn">Открыть</a>
+          {% if user and user.role == 'teacher' %}
+            <a href="{{ url_for('course_edit', cid=c.id) }}" class="btn">Ред.</a>
+            <form method="post" action="{{ url_for('course_delete', cid=c.id) }}" style="display:inline" onsubmit="return confirm('Удалить курс?')">
+              <button type="submit" class="btn btn-danger">Удалить</button>
+            </form>
+          {% endif %}
+        </div>
+      </li>
+    {% else %}
+      <li><em>Курсов пока нет</em></li>
+    {% endfor %}
+  </ul>
+</div>
+</body>
+</html>

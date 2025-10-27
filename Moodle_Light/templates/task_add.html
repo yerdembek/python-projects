@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Добавить задание</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header>
+  <h1><a href="{{ url_for('index') }}" style="color:white;text-decoration:none;">Moodle Light</a></h1>
+  <div>
+    {% if user %}
+      <a href="{{ url_for('profile') }}">👤 {{ user.username }} ({{ user.role }})</a>
+      <form method="post" action="{{ url_for('logout') }}" style="display:inline">
+        <button type="submit" class="btn btn-danger" style="margin-left:0.5rem;">Выйти</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-accent">Войти</a>
+    {% endif %}
+  </div>
+</header>
+  <div class="container">
+    <p><a href="{{ url_for('task_list', cid=course.id) }}">← К заданиям</a></p>
+    <h1>Новое задание</h1>
+    <form method="post">
+      <div style="margin-bottom:1rem">
+        <label>Название</label><br>
+        <input name="title" required style="width:70%">
+      </div>
+      <div style="margin-bottom:1rem">
+        <label>Описание</label><br>
+        <textarea name="description" rows="6" style="width:70%"></textarea>
+      </div>
+      <div style="margin-bottom:1rem">
+        <label>Дедлайн (необязательно)</label><br>
+        <input name="deadline" placeholder="2025-10-30">
+      </div>
+      <button type="submit">Создать</button>
+    </form>
+  </div>
+</body>
+</html>

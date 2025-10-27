@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Задания — {{ course.title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header>
+  <h1><a href="{{ url_for('index') }}" style="color:white;text-decoration:none;">Moodle Light</a></h1>
+  <div>
+    {% if user %}
+      <a href="{{ url_for('profile') }}">👤 {{ user.username }} ({{ user.role }})</a>
+      <form method="post" action="{{ url_for('logout') }}" style="display:inline">
+        <button type="submit" class="btn btn-danger" style="margin-left:0.5rem;">Выйти</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-accent">Войти</a>
+    {% endif %}
+  </div>
+</header>
+  <div class="container">
+    <p><a href="{{ url_for('course_view', cid=course.id) }}">← Назад к курсу</a></p>
+    <h1>Задания по курсу {{ course.title }}</h1>
+
+    {% if user and user.role == 'teacher' %}
+      <a href="{{ url_for('task_add_form', cid=course.id) }}">+ Добавить задание</a>
+    {% endif %}
+
+    <ul>
+      {% for t in tasks %}
+        <li>
+          <strong>{{ t.title }}</strong>
+          {% if t.deadline %} — до {{ t.deadline }}{% endif %}
+          <a href="{{ url_for('task_view', cid=course.id, tid=t.id) }}">Открыть</a>
+        </li>
+      {% else %}
+        <li>Заданий пока нет</li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+</html>

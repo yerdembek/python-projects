@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{{ task.title }} — {{ course.title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header>
+  <h1><a href="{{ url_for('index') }}" style="color:white;text-decoration:none;">Moodle Light</a></h1>
+  <div>
+    {% if user %}
+      <a href="{{ url_for('profile') }}">👤 {{ user.username }} ({{ user.role }})</a>
+      <form method="post" action="{{ url_for('logout') }}" style="display:inline">
+        <button type="submit" class="btn btn-danger" style="margin-left:0.5rem;">Выйти</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-accent">Войти</a>
+    {% endif %}
+  </div>
+</header>
+  <div class="container">
+    <p><a href="{{ url_for('task_list', cid=course.id) }}">← К списку заданий</a></p>
+    <h1>{{ task.title }}</h1>
+    <p style="white-space:pre-wrap">{{ task.description or "Без описания" }}</p>
+    {% if task.deadline %}<p><strong>Дедлайн:</strong> {{ task.deadline }}</p>{% endif %}
+
+    {% if user.role == 'student' %}
+  <h3>Отправить ответ</h3>
+  {% if user_sub %}
+    <p>Вы уже отправили: {{ user_sub.filename }}</p>
+    {% if user_sub.grade is not none %}
+      <p><strong>Оценка:</strong> {{ user_sub.grade }} / 100</p>
+      {% if user_sub.feedback %}<p><strong>Комментарий:</strong> {{ user_sub.feedback }}</p>{% endif %}
+    {% else %}
+      <p><em>Оценка пока не выставлена</em></p>
+    {% endif %}
+  {% endif %}
+  <form method="post" enctype="multipart/form-data" action="{{ url_for('task_submit', cid=course.id, tid=task.id) }}">
+    <input type="file" name="file" required>
+    <button type="submit">Загрузить</button>
+  </form>
+
+    {% elif user.role == 'teacher' %}
+  <h3>Ответы студентов</h3>
+  <ul>
+    {% for s in answers %}
+      <li>
+        {{ username(s.user_id) }} —
+        <a href="{{ url_for('static', filename='../uploads/' + s.filename) }}">{{ s.filename }}</a>
+        {% if s.grade is not none %}
+          — <strong>{{ s.grade }}</strong>/100
+          {% if s.feedback %} ({{ s.feedback }}){% endif %}
+        {% else %}
+          — <em>не оценено</em>
+        {% endif %}
+        <a href="{{ url_for('grade_form', cid=course.id, tid=task.id, uid=s.user_id) }}">Оценить</a>
+      </li>
+    {% else %}
+      <li>Ответов пока нет</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Редактировать курс — {{ course.title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header>
+  <h1><a href="{{ url_for('index') }}" style="color:white;text-decoration:none;">Moodle Light</a></h1>
+  <div>
+    {% if user %}
+      <a href="{{ url_for('profile') }}">👤 {{ user.username }} ({{ user.role }})</a>
+      <form method="post" action="{{ url_for('logout') }}" style="display:inline">
+        <button type="submit" class="btn btn-danger" style="margin-left:0.5rem;">Выйти</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-accent">Войти</a>
+    {% endif %}
+  </div>
+</header>
+  <div class="container">
+    <p><a href="{{ url_for('course_view', cid=course.id) }}">← Назад к курсу</a></p>
+    <h1>Редактировать курс</h1>
+    <form method="post" action="{{ url_for('course_edit_save', cid=course.id) }}">
+      <div style="margin-bottom:0.5rem">
+        <label>Название</label><br>
+        <input name="title" value="{{ course.title }}" required style="width:70%">
+      </div>
+      <div style="margin-bottom:0.5rem">
+        <label>Описание</label><br>
+        <textarea name="description" rows="6" style="width:70%">{{ course.description }}</textarea>
+      </div>
+      <button type="submit">Сохранить</button>
+    </form>
+  </div>
+</body>
+</html>

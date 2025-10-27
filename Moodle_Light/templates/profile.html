@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Профиль — {{ user.username }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header>
+  <h1><a href="{{ url_for('index') }}" style="color:white;text-decoration:none;">Moodle Light</a></h1>
+  <div>
+    {% if user %}
+      <a href="{{ url_for('profile') }}">👤 {{ user.username }} ({{ user.role }})</a>
+      <form method="post" action="{{ url_for('logout') }}" style="display:inline">
+        <button type="submit" class="btn btn-danger" style="margin-left:0.5rem;">Выйти</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-accent">Войти</a>
+    {% endif %}
+  </div>
+</header>
+
+<div class="container">
+  <h2>Профиль</h2>
+  <p>👤 <strong>{{ user.username }}</strong> — <span class="badge {{ 'badge-teacher' if user.role=='teacher' else 'badge-student' }}">{{ user.role }}</span></p>
+
+  {% if user.role == 'student' %}
+    <hr>
+    <h3>Мои отправки</h3>
+    {% if student_rows %}
+      <div class="table">
+        <div class="tr th">
+          <div>Курс</div><div>Задание</div><div>Файл</div><div>Оценка</div><div>Комментарий</div>
+        </div>
+        {% for r in student_rows %}
+          <div class="tr">
+            <div><a href="{{ url_for('course_view', cid=r.course_id) }}">{{ r.course }}</a></div>
+            <div><a href="{{ url_for('task_view', cid=r.course_id, tid=r.task_id) }}">{{ r.task }}</a></div>
+            <div>
+              {% if r.filename %}
+                <a href="{{ url_for('static', filename='../uploads/' + r.filename) }}">{{ r.filename }}</a>
+              {% else %}-{% endif %}
+            </div>
+            <div>{% if r.grade is not none %}{{ r.grade }} / 100{% else %}<em>—</em>{% endif %}</div>
+            <div>{{ r.feedback or '—' }}</div>
+          </div>
+        {% endfor %}
+      </div>
+      <p style="margin-top:.5rem">
+        <strong>Средняя оценка:</strong>
+        {% if avg_grade is not none %}{{ avg_grade }} / 100{% else %}<em>пока нет оценок</em>{% endif %}
+      </p>
+    {% else %}
+      <p><em>Вы ещё не отправляли работы.</em></p>
+    {% endif %}
+  {% endif %}
+
+  {% if user.role == 'teacher' %}
+    <hr>
+    <h3>Мои курсы (преподаватель)</h3>
+    {% if teacher_courses %}
+      <ul>
+        {% for row in teacher_courses %}
+          <li>
+            <div>
+              <strong>{{ row.course.title }}</strong>
+              <span class="muted"> — заданий: {{ row.tasks_count }}, ответов: {{ row.subs_count }}, не оценено: {{ row.pending_count }}</span>
+            </div>
+            <div>
+              <a class="btn" href="{{ url_for('course_view', cid=row.course.id) }}">Открыть курс</a>
+              <a class="btn" href="{{ url_for('task_list', cid=row.course.id) }}">Задания</a>
+              <a class="btn" href="{{ url_for('task_add_form', cid=row.course.id) }}">+ Задание</a>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+
+      {% set has_pending = teacher_courses | selectattr('pending_count', 'gt', 0) | list %}
+      {% if has_pending %}
+        <h4 style="margin-top:1rem">Незачтённые ответы (первые 10 на курс)</h4>
+        <ul>
+          {% for row in teacher_courses if row.pending_count > 0 %}
+            <li>
+              <div>
+                <strong>{{ row.course.title }}</strong>
+                <ul>
+                  {% for s in row.pending %}
+                    <li>
+                      {{ username(s.user_id) }}
+                      — <a href="{{ url_for('static', filename='../uploads/' + s.filename) }}">{{ s.filename }}</a>
+                      — <a href="{{ url_for('grade_form', cid=row.course.id, tid=s.task_id, uid=s.user_id) }}">Оценить</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% else %}
+      <p><em>Пока у вас нет курсов.</em></p>
+    {% endif %}
+  {% endif %}
+</div>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Оценка — {{ task.title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header>
+  <h1><a href="{{ url_for('index') }}" style="color:white;text-decoration:none;">Moodle Light</a></h1>
+  <div>
+    {% if user %}
+      <a href="{{ url_for('profile') }}">👤 {{ user.username }} ({{ user.role }})</a>
+      <form method="post" action="{{ url_for('logout') }}" style="display:inline">
+        <button type="submit" class="btn btn-danger" style="margin-left:0.5rem;">Выйти</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-accent">Войти</a>
+    {% endif %}
+  </div>
+</header>
+  <div class="container">
+    <p>
+      <a href="{{ url_for('task_view', cid=course.id, tid=task.id) }}">← Назад к заданию</a>
+    </p>
+    <h1>Оценивание</h1>
+    <p><strong>Курс:</strong> {{ course.title }}</p>
+    <p><strong>Задание:</strong> {{ task.title }}</p>
+    <p><strong>Студент:</strong> {{ username(sub.user_id) }}</p>
+    <p><strong>Файл:</strong> <a href="{{ url_for('static', filename='../uploads/' + sub.filename) }}">{{ sub.filename }}</a></p>
+
+    <form method="post">
+      <div style="margin: .6rem 0">
+        <label>Оценка (0–100) — оставьте пустым, чтобы снять оценку</label><br>
+        <input name="grade" type="number" min="0" max="100" value="{{ sub.grade if sub.grade is not none }}">
+      </div>
+      <div style="margin: .6rem 0">
+        <label>Комментарий преподавателя</label><br>
+        <textarea name="feedback" rows="5" style="width:70%">{{ sub.feedback }}</textarea>
+      </div>
+      <button type="submit">Сохранить</button>
+    </form>
+  </div>
+</body>
+</html>
