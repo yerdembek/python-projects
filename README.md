@@ -28,3 +28,27 @@ It typically contains:
 1. Clone the repository:
 ```bash
 git clone https://github.com/yerdembek/python-projects.git
+```
+
+2. Navigate to the desired project folder:
+```bash
+cd python-mini-projects/project-name
+```
+
+3. (Optional) Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 💡 Repository Purpose
+
+- Practicing writing clean and understandable code
+- Mastering different libraries and approaches
+- Creating a portfolio to showcase Python development skills
+
+## 📬 Contacts
+
+- If you'd like to get in touch or discuss projects, please write to:
+  📧 erdembekb @gmail.com
