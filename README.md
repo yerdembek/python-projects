@@ -50,5 +50,5 @@ pip install -r requirements.txt
 
 ## 📬 Contacts
 
-- If you'd like to get in touch or discuss projects, please write to:
+- If you'd like to get in touch or discuss projects, please write to:\
   📧 erdembekb @gmail.com
