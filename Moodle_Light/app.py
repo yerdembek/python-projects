@@ -115,7 +115,6 @@ def api_get_courses():
     data = _load_courses()
     return jsonify(data["courses"])
 
-# HTML add via form (добавлять курсы — только преподавателю)
 @app.post("/add_course")
 @teacher_required
 def add_course_form():
@@ -128,7 +127,6 @@ def add_course_form():
     _save_courses(data)
     return redirect(url_for("index"))
 
-# Страница курса
 @app.get("/course/<int:cid>")
 def course_view(cid):
     data = _load_courses()
@@ -139,7 +137,6 @@ def course_view(cid):
     comments = [cm for cm in comments_data["comments"] if cm["course_id"] == cid]
     return render_template("course.html", course=course, comments=comments, user=current_user())
 
-# Комментарии: писать — любой залогиненный; удалять — только teacher
 @app.post("/course/<int:cid>/comment")
 @login_required
 def course_comment_create(cid):
@@ -169,7 +166,6 @@ def course_comment_delete(cid, cmid):
         save_json(COMMENTS, data)
     return redirect(url_for("course_view", cid=cid))
 
-# Редактирование/удаление курсов — только teacher
 @app.get("/course/<int:cid>/edit")
 @teacher_required
 def course_edit(cid):
@@ -242,7 +238,6 @@ def task_list(cid):
     course_tasks = [t for t in tasks_data["tasks"] if t["course_id"] == cid]
     return render_template("tasks.html", course=course, tasks=course_tasks, user=current_user())
 
-# --- Создание задания (teacher only) ---
 @app.get("/course/<int:cid>/task/add")
 @teacher_required
 def task_add_form(cid):
@@ -271,7 +266,6 @@ def task_add(cid):
     flash("Задание добавлено")
     return redirect(url_for("task_list", cid=cid))
 
-# --- Просмотр задания + отправка ответа ---
 @app.get("/course/<int:cid>/task/<int:tid>")
 @login_required
 def task_view(cid, tid):
@@ -285,7 +279,6 @@ def task_view(cid, tid):
     user_sub = next((s for s in answers if s["user_id"] == user["id"]), None)
     return render_template("task_view.html", course=course, task=task, answers=answers, user=user, user_sub=user_sub)
 
-# --- Загрузка ответа студентом ---
 @app.post("/course/<int:cid>/task/<int:tid>/submit")
 @login_required
 def task_submit(cid, tid):
@@ -305,7 +298,6 @@ def task_submit(cid, tid):
     file.save(path)
 
     data = load_json(SUBMISSIONS, {"submissions": []})
-    # заменим старую попытку, если была
     data["submissions"] = [s for s in data["submissions"] if not (s["user_id"] == current_user()["id"] and s["task_id"] == tid)]
     data["submissions"].append({
         "user_id": current_user()["id"],
@@ -316,7 +308,6 @@ def task_submit(cid, tid):
     flash("Ответ отправлен!")
     return redirect(url_for("task_view", cid=cid, tid=tid))
 
-# --- Форма оценивания конкретной работы (teacher only) ---
 @app.get("/course/<int:cid>/task/<int:tid>/grade/<int:uid>")
 @teacher_required
 def grade_form(cid, tid, uid):
@@ -330,7 +321,6 @@ def grade_form(cid, tid, uid):
         abort(404)
     return render_template("task_grade.html", course=course, task=task, sub=sub, user=current_user())
 
-# --- Сохранение оценки (teacher only) ---
 @app.post("/course/<int:cid>/task/<int:tid>/grade/<int:uid>")
 @teacher_required
 def grade_save(cid, tid, uid):
@@ -342,7 +332,6 @@ def grade_save(cid, tid, uid):
     grade_raw = (request.form.get("grade") or "").strip()
     feedback = (request.form.get("feedback") or "").strip()
 
-    # Валидация балла (0..100 или пусто для снятия оценки)
     grade = None
     if grade_raw != "":
         try:
@@ -378,24 +367,21 @@ def grade_save(cid, tid, uid):
 def profile():
     user = current_user()
 
-    # загрузим все данные
     courses_data = _load_courses()
     tasks_data = _load_tasks()
     subs_data = load_json(SUBMISSIONS, {"submissions": []})
 
-    # индексы для быстрого доступа
     course_by_id = {c["id"]: c for c in courses_data["courses"]}
     tasks_by_course = {}
     for t in tasks_data["tasks"]:
         tasks_by_course.setdefault(t["course_id"], []).append(t)
 
-    # профиль студента: его отправки + оценки
     student_rows = []
     if user["role"] == "student":
         for s in subs_data["submissions"]:
             if s["user_id"] != user["id"]:
                 continue
-            # найдём задачу и курс
+
             task = next((t for t in tasks_data["tasks"] if t["id"] == s["task_id"]), None)
             if not task:
                 continue
@@ -410,18 +396,16 @@ def profile():
                 "course_id": task["course_id"],
             })
 
-        # посчитаем среднюю оценку (по выставленным)
         graded = [r["grade"] for r in student_rows if isinstance(r.get("grade"), int)]
         avg_grade = round(sum(graded) / len(graded), 2) if graded else None
     else:
         avg_grade = None
 
-    # профиль преподавателя: сводка по курсам/заданиям/ожидающим оценку
     teacher_courses = []
     if user["role"] == "teacher":
         for c in courses_data["courses"]:
             course_tasks = tasks_by_course.get(c["id"], [])
-            # все отправки по задачам этого курса
+
             course_task_ids = {t["id"] for t in course_tasks}
             course_subs = [s for s in subs_data["submissions"] if s["task_id"] in course_task_ids]
             pending = [s for s in course_subs if s.get("grade") is None]
@@ -430,7 +414,7 @@ def profile():
                 "tasks_count": len(course_tasks),
                 "subs_count": len(course_subs),
                 "pending_count": len(pending),
-                "pending": pending[:10],  # покажем до 10 незачтённых
+                "pending": pending[:10],
             })
 
     return render_template(
